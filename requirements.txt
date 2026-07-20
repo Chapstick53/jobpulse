@@ -1,5 +1,6 @@
 # Dashboard dependencies only — Streamlit Cloud installs this file.
+# Unpinned so the installer picks versions compatible with the cloud's Python.
 # The data pipeline (GitHub Actions) uses requirements-pipeline.txt.
-streamlit==1.40.2
-altair==5.4.1
-pandas==2.2.3
+streamlit
+altair
+pandas
