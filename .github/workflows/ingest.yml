@@ -1,0 +1,42 @@
+name: Weekly data ingestion
+
+on:
+  schedule:
+    - cron: "0 3 * * 1"   # every Monday 03:00 UTC
+  workflow_dispatch: {}    # allows manual "Run workflow" button on GitHub
+
+permissions:
+  contents: write
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Ingest new postings
+        env:
+          ADZUNA_APP_ID: ${{ secrets.ADZUNA_APP_ID }}
+          ADZUNA_APP_KEY: ${{ secrets.ADZUNA_APP_KEY }}
+        run: python -m ingestion.ingest
+
+      - name: Extract skills from new postings
+        run: python -m extraction.extract
+
+      - name: Rebuild rankings
+        run: python -m aggregation.aggregate
+
+      - name: Commit updated database
+        run: |
+          git config user.name "jobpulse-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/jobpulse.db
+          git diff --cached --quiet || git commit -m "chore: weekly data refresh"
+          git push

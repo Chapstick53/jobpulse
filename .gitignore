@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+notebooks/.ipynb_checkpoints/
+.claude/

@@ -1,0 +1,6 @@
+httpx==0.27.2
+spacy==3.8.7
+click
+streamlit==1.40.2
+altair==5.4.1
+pandas==2.2.3
