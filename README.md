@@ -28,5 +28,3 @@ python -m venv .venv
 ```
 
 Optional: create a free account at https://developer.adzuna.com and set `ADZUNA_APP_ID` / `ADZUNA_APP_KEY` to enable the multi-country Adzuna source.
-
-See [PROJECT_PLAN.md](PROJECT_PLAN.md) for the full roadmap.

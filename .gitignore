@@ -4,3 +4,12 @@ __pycache__/
 .env
 notebooks/.ipynb_checkpoints/
 .claude/
+
+# Local-only: planning/strategy docs and internal notes — never push these
+PROJECT_PLAN.md
+DEVLOG.md
+
+# Local-only: labeling tools and validation data (for now)
+labeling/
+data/validation_sample.json
+data/validation_labels.json
