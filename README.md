@@ -20,10 +20,11 @@ Runs weekly via GitHub Actions (`.github/workflows/ingest.yml`), which commits t
 
 ```
 python -m venv .venv
-.venv/Scripts/pip install -r requirements.txt
+.venv/Scripts/pip install -r requirements.txt -r requirements-pipeline.txt
 .venv/Scripts/python -m ingestion.ingest
 .venv/Scripts/python -m extraction.extract
 .venv/Scripts/python -m aggregation.aggregate
+.venv/Scripts/python -m streamlit run streamlit_app.py
 ```
 
 Optional: create a free account at https://developer.adzuna.com and set `ADZUNA_APP_ID` / `ADZUNA_APP_KEY` to enable the multi-country Adzuna source.

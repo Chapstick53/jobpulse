@@ -1,0 +1,4 @@
+# Ingestion + extraction dependencies, used by .github/workflows/ingest.yml
+httpx==0.27.2
+spacy==3.8.7
+click
