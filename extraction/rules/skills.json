@@ -144,6 +144,33 @@
     "Streamlit": ["streamlit"]
   },
 
+  "domain_skills": {
+    "Infrastructure": ["infrastructure", "it infrastructure"],
+    "Networking": ["networking", "network engineer", "network administration", "tcp/ip"],
+    "Cloud Computing": ["cloud computing", "cloud engineer", "cloud architecture", "cloud-native", "cloud native"],
+    "UI/UX Design": ["ui/ux", "ux design", "ui design", "user experience", "user interface"],
+    "Frontend Development": ["frontend", "front-end", "front end"],
+    "Backend Development": ["backend", "back-end", "back end"],
+    "Full-Stack Development": ["full stack", "full-stack", "fullstack"],
+    "Mobile Development": ["mobile development", "mobile app development", "mobile apps"],
+    "Data Engineering": ["data engineering", "data engineer", "data pipelines"],
+    "Data Analysis": ["data analysis", "data analyst", "data analytics", "business intelligence"],
+    "QA / Testing": ["quality assurance", "software testing", "test automation", "qa engineer"],
+    "Project Management": ["project management", "project manager"],
+    "Program Management": ["program management", "program manager", "technical program manager"],
+    "Product Management": ["product management", "product manager"],
+    "Business Analysis": ["business analyst", "business analysis"],
+    "Technical Support": ["technical support", "it support", "helpdesk", "help desk"],
+    "System Administration": ["system administration", "sysadmin", "system administrator"],
+    "Database Administration": ["database administration", "database administrator"],
+    "Software Architecture": ["solution architect", "software architect", "system design", "solution architecture"],
+    "Information Security": ["information security", "security operations", "soc analyst"],
+    "Banking / Fintech": ["fintech", "banking domain", "financial services"],
+    "E-commerce": ["e-commerce", "ecommerce"],
+    "Embedded Systems": ["embedded systems", "embedded software", "firmware"],
+    "Game Development": ["game development", "game developer", "gamedev"]
+  },
+
   "soft_skills": {
     "Communication": ["communication skills", "communication", "communicate effectively", "verbal and written"],
     "Teamwork": ["teamwork", "team player", "collaboration", "collaborative", "cross-functional"],

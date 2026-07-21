@@ -15,7 +15,7 @@ import spacy
 from ingestion.db import connect
 
 RULES_PATH = Path(__file__).resolve().parent / "rules" / "skills.json"
-EXTRACTOR_VERSION = "rules-v1"
+EXTRACTOR_VERSION = "rules-v2"  # v2: added domain_skills category
 
 MENTIONS_SCHEMA = """
 CREATE TABLE IF NOT EXISTS mentions (
@@ -34,6 +34,7 @@ CATEGORY_LABELS = {
     "programming_languages": "programming_language",
     "ambiguous_case_sensitive": "programming_language",
     "technologies": "technology",
+    "domain_skills": "domain",
     "soft_skills": "soft_skill",
 }
 

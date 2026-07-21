@@ -85,8 +85,8 @@ remote_share = month_postings["remote"].mean() * 100 if len(month_postings) else
 c3.metric("Remote share", f"{remote_share:.0f}%")
 c4.metric("All-time postings", f"{len(postings):,}")
 
-tab_tech, tab_lang, tab_soft, tab_remote = st.tabs(
-    ["🛠 Technologies", "💻 Programming languages", "🤝 Soft skills", "🌍 Remote jobs"]
+tab_tech, tab_lang, tab_domain, tab_soft, tab_remote = st.tabs(
+    ["🛠 Technologies", "💻 Programming languages", "🏢 Domains & roles", "🤝 Soft skills", "🌍 Remote jobs"]
 )
 
 with tab_tech:
@@ -96,6 +96,10 @@ with tab_tech:
 with tab_lang:
     st.subheader(f"Top programming languages — {month}")
     show_ranking(rankings, month, "programming_language", "Postings mentioning it")
+
+with tab_domain:
+    st.subheader(f"Top domains & role areas — {month}")
+    show_ranking(rankings, month, "domain", "Postings mentioning it")
 
 with tab_soft:
     st.subheader(f"Top soft skills — {month}")
