@@ -8,8 +8,11 @@ notebooks/.ipynb_checkpoints/
 # Local-only: planning/strategy docs and internal notes — never push these
 PROJECT_PLAN.md
 DEVLOG.md
+# QUICKSTART.md contains Adzuna credentials in plaintext — keep local
+QUICKSTART.md
 
 # Local-only: labeling tools and validation data (for now)
 labeling/
 data/validation_sample.json
 data/validation_labels.json
+data/validation_labels_claude.json

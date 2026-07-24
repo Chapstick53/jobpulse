@@ -28,7 +28,7 @@ FROM (
            m.category, m.skill, COUNT(DISTINCT m.posting_id) AS postings
     FROM mentions m
     JOIN raw_postings p ON p.id = m.posting_id
-    WHERE m.skill != '__none__'
+    WHERE m.skill != '__none__' AND COALESCE(p.excluded, 0) = 0
     GROUP BY month, m.category, m.skill
 );
 """

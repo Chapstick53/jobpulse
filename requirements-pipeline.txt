@@ -2,3 +2,4 @@
 httpx==0.27.2
 spacy==3.8.7
 click
+langdetect==1.0.9

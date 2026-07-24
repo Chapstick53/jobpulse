@@ -1,10 +1,11 @@
 """Run all sources and store new postings. Usage: python -m ingestion.ingest"""
 from ingestion import db
-from ingestion.sources import adzuna, arbeitnow, remoteok, remotive
+from ingestion.sources import adzuna, arbeitnow, remotive
 
+# RemoteOK dropped after validation: 0/15 usable in sample — spam, gibberish,
+# non-tech, injected text (DEVLOG F9). Source file kept in case we revisit.
 SOURCES = {
     "remotive": remotive,
-    "remoteok": remoteok,
     "arbeitnow": arbeitnow,
     "adzuna": adzuna,
 }

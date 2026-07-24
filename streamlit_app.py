@@ -21,7 +21,7 @@ def load() -> dict[str, pd.DataFrame]:
     postings = pd.read_sql(
         """SELECT source, remote, location,
                   substr(COALESCE(posted_at, ingested_at), 1, 7) AS month
-           FROM raw_postings""",
+           FROM raw_postings WHERE COALESCE(excluded, 0) = 0""",
         conn,
     )
     conn.close()

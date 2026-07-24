@@ -77,9 +77,12 @@ def main() -> None:
     conn = connect()
     conn.executescript(MENTIONS_SCHEMA)
 
+    # only extract postings that survived the cleaning pass (excluded=0);
+    # COALESCE handles the case where clean.py hasn't run yet (column may not exist)
     todo = conn.execute(
         """SELECT id, title, description FROM raw_postings
-           WHERE id NOT IN (
+           WHERE COALESCE(excluded, 0) = 0
+           AND id NOT IN (
                SELECT DISTINCT posting_id FROM mentions WHERE extractor_version = ?
            )""",
         (EXTRACTOR_VERSION,),
