@@ -27,6 +27,9 @@ jobs:
           ADZUNA_APP_KEY: ${{ secrets.ADZUNA_APP_KEY }}
         run: python -m ingestion.ingest
 
+      - name: Clean data (language filter, dedup, drop junk)
+        run: python -m ingestion.clean
+
       - name: Extract skills from new postings
         run: python -m extraction.extract
 
