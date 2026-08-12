@@ -15,7 +15,19 @@ import spacy
 from ingestion.db import connect
 
 RULES_PATH = Path(__file__).resolve().parent / "rules" / "skills.json"
-EXTRACTOR_VERSION = "rules-v2"  # v2: added domain_skills category
+EXTRACTOR_VERSION = "rules-v3"  # v3: C/Go/R context disambiguation + tighter soft skills
+
+# The single-token languages C, Go, R are only real if programming context sits
+# next to them — otherwise "C-suite", "A/B/C test", "Go to market", "R&D" leak in
+# (DEVLOG F1). We match them as candidates, then require this signal in a ±40 char
+# window around the mention.
+AMBIG_KEYS = {"programming_language::C", "programming_language::Go", "programming_language::R"}
+PROG_CONTEXT = re.compile(
+    r"c\+\+|c#|golang|python|java\b|javascript|typescript|rust|kotlin|scala|"
+    r"\.net|\bsql\b|matlab|programming|software|developer|back[- ]?end|micro-?services|"
+    r"\bcode\b|\bapi\b|statistical|rstudio|shiny|data scien",
+    re.IGNORECASE,
+)
 
 MENTIONS_SCHEMA = """
 CREATE TABLE IF NOT EXISTS mentions (
@@ -101,6 +113,11 @@ def main() -> None:
         found = set()
         for ent in nlp(text).ents:
             label, canonical = ent.ent_id_.split("::", 1)
+            # ambiguous single-token languages need programming context nearby
+            if f"{label}::{canonical}" in AMBIG_KEYS:
+                lo, hi = max(0, ent.start_char - 40), min(len(text), ent.end_char + 40)
+                if not PROG_CONTEXT.search(text[lo:hi]):
+                    continue
             found.add((label, canonical))
         # A posting with zero matches still gets a marker row so we don't
         # re-process it every run.
