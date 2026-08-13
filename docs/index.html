@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>JobPulse</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="A self-updating job-market trend platform — data pipeline, NLP extraction, and a validation harness, built end-to-end on a $0 budget.">
+<style>
+  :root {
+    --bg: #f6f6f3;
+    --surface: #ffffff;
+    --surface-2: #eef0ec;
+    --ink: #15181d;
+    --ink-soft: #474d55;
+    --muted: #868c95;
+    --line: #e2e3de;
+    --accent: #0f766e;
+    --accent-ink: #0b5850;
+    --accent-soft: #d8ece8;
+    --good: #15803d;
+    --shadow: 0 1px 2px rgba(20,23,28,.05), 0 8px 24px rgba(20,23,28,.05);
+    --mono: ui-monospace, "SF Mono", "SFMono-Regular", "Cascadia Mono", "Roboto Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0c0f14;
+      --surface: #141920;
+      --surface-2: #1b212a;
+      --ink: #f1f3ef;
+      --ink-soft: #b6bcc4;
+      --muted: #79808a;
+      --line: #262c35;
+      --accent: #2dd4bf;
+      --accent-ink: #5eead4;
+      --accent-soft: #10312d;
+      --good: #4ade80;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0c0f14;
+    --surface: #141920;
+    --surface-2: #1b212a;
+    --ink: #f1f3ef;
+    --ink-soft: #b6bcc4;
+    --muted: #79808a;
+    --line: #262c35;
+    --accent: #2dd4bf;
+    --accent-ink: #5eead4;
+    --accent-soft: #10312d;
+    --good: #4ade80;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 940px; margin: 0 auto; padding: 0 24px; }
+  section { padding: 46px 0; border-top: 1px solid var(--line); }
+  section:first-of-type { border-top: none; }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    margin: 0 0 14px;
+  }
+  h1 {
+    font-size: clamp(2.6rem, 7vw, 4.2rem);
+    line-height: .98;
+    letter-spacing: -.03em;
+    font-weight: 800;
+    margin: 0 0 18px;
+    text-wrap: balance;
+  }
+  h1 .pulse { color: var(--accent); }
+  h2 {
+    font-size: clamp(1.3rem, 3vw, 1.7rem);
+    letter-spacing: -.02em;
+    font-weight: 750;
+    margin: 0 0 20px;
+    text-wrap: balance;
+  }
+  .lede {
+    font-size: clamp(1.05rem, 2.2vw, 1.3rem);
+    color: var(--ink-soft);
+    max-width: 60ch;
+    margin: 0 0 26px;
+  }
+  p { margin: 0 0 14px; }
+
+  .hero { padding-top: 60px; padding-bottom: 40px; }
+  .hero-meta {
+    font-family: var(--mono); font-size: 12.5px; color: var(--muted);
+    display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 26px;
+  }
+  .hero-meta span { white-space: nowrap; }
+  .cta-row { display: flex; flex-wrap: wrap; gap: 12px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-weight: 650; font-size: 15px; text-decoration: none;
+    padding: 11px 20px; border-radius: 10px; transition: transform .12s ease;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn-primary { background: var(--accent); color: #fff; }
+  :root[data-theme="dark"] .btn-primary { color: #06231f; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .btn-primary { color: #06231f; } }
+  .btn-ghost { background: var(--surface); color: var(--ink); border: 1px solid var(--line); box-shadow: var(--shadow); }
+
+  .metrics {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px;
+    background: var(--line); border: 1px solid var(--line);
+    border-radius: 14px; overflow: hidden; box-shadow: var(--shadow);
+  }
+  .metric { background: var(--surface); padding: 22px 18px; }
+  .metric .num {
+    font-family: var(--mono); font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 700; letter-spacing: -.02em; color: var(--ink);
+    font-variant-numeric: tabular-nums; line-height: 1;
+  }
+  .metric .num.accent { color: var(--accent); }
+  .metric .lbl { font-size: 12.5px; color: var(--muted); margin-top: 8px; line-height: 1.35; }
+  @media (max-width: 760px) { .metrics { grid-template-columns: repeat(2, 1fr); } }
+
+  .pipe { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+  .step {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+    padding: 16px 15px; position: relative;
+  }
+  .step .n { font-family: var(--mono); font-size: 11px; color: var(--accent-ink); letter-spacing: .1em; }
+  .step h3 { font-size: 15px; margin: 6px 0 5px; letter-spacing: -.01em; }
+  .step p { font-size: 12.8px; color: var(--ink-soft); margin: 0; line-height: 1.45; }
+  @media (max-width: 760px) { .pipe { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 460px) { .pipe { grid-template-columns: 1fr; } }
+
+  .rank-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .rank {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 12px; padding: 18px 18px 10px; box-shadow: var(--shadow);
+  }
+  .rank h3 {
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--muted); margin: 0 0 12px; font-weight: 600;
+  }
+  .rank ol { margin: 0; padding: 0; list-style: none; counter-reset: r; }
+  .rank li {
+    display: flex; align-items: baseline; gap: 9px; padding: 6px 0;
+    border-top: 1px solid var(--line); font-size: 14px;
+  }
+  .rank li:first-child { border-top: none; }
+  .rank li::before {
+    counter-increment: r; content: counter(r);
+    font-family: var(--mono); font-size: 11px; color: var(--accent);
+    width: 14px; flex: none;
+  }
+  .rank li .nm { flex: 1; color: var(--ink); font-weight: 550; }
+  .rank li .ct { font-family: var(--mono); font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  @media (max-width: 820px) { .rank-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 440px) { .rank-grid { grid-template-columns: 1fr; } }
+  .caption { font-size: 12.5px; color: var(--muted); margin-top: 14px; font-family: var(--mono); }
+
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+    padding: 20px; box-shadow: var(--shadow);
+  }
+  .card h3 { font-size: 15.5px; margin: 0 0 8px; display: flex; align-items: center; gap: 9px; letter-spacing: -.01em; }
+  .card h3 .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex: none; }
+  .card p { font-size: 13.8px; color: var(--ink-soft); margin: 0; }
+  .card strong { color: var(--ink); font-weight: 650; }
+  @media (max-width: 640px) { .cards { grid-template-columns: 1fr; } }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    font-family: var(--mono); font-size: 12.5px; padding: 6px 12px;
+    background: var(--surface-2); color: var(--ink-soft);
+    border: 1px solid var(--line); border-radius: 20px;
+  }
+
+  .bullets-box {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 14px; padding: 8px; box-shadow: var(--shadow);
+  }
+  .bullets-head {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 14px 12px;
+  }
+  .bullets-head .t { font-family: var(--mono); font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  #copyBtn {
+    font-family: var(--mono); font-size: 12px; cursor: pointer;
+    background: var(--accent-soft); color: var(--accent-ink);
+    border: 1px solid transparent; border-radius: 8px; padding: 6px 12px; font-weight: 600;
+  }
+  #copyBtn:hover { border-color: var(--accent); }
+  #copyBtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .bullets { margin: 0; padding: 4px 6px 6px; list-style: none; }
+  .bullets li {
+    display: flex; gap: 11px; padding: 11px 12px; font-size: 14px; line-height: 1.55;
+    color: var(--ink-soft); border-radius: 8px;
+  }
+  .bullets li + li { border-top: 1px solid var(--line); }
+  .bullets li::before { content: "\25B8"; color: var(--accent); flex: none; }
+  .bullets strong { color: var(--ink); font-weight: 650; }
+
+  footer { padding: 40px 0 60px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13.5px; }
+  footer a { color: var(--accent-ink); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+  .next {
+    background: var(--accent-soft); border: 1px solid transparent;
+    border-radius: 12px; padding: 16px 18px; margin-top: 8px;
+    font-size: 13.8px; color: var(--ink-soft);
+  }
+  .next strong { color: var(--accent-ink); }
+  a:focus-visible, .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <section class="hero">
+    <p class="eyebrow">Data &amp; ML Engineering &middot; Solo Project &middot; 2026</p>
+    <h1>Job<span class="pulse">Pulse</span></h1>
+    <p class="lede">A self-updating platform that reads the job market and ranks what employers actually ask for &mdash; technologies, languages, roles, and soft skills &mdash; refreshed every week and built end-to-end on a strict <strong>$0 infrastructure budget</strong>.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="https://jobpulse-fvopjbm2vnzoqjatwjxkun.streamlit.app" target="_blank" rel="noopener">Live dashboard &rarr;</a>
+      <a class="btn btn-ghost" href="https://github.com/Chapstick53/jobpulse" target="_blank" rel="noopener">Source code</a>
+    </div>
+    <div class="hero-meta">
+      <span>Python</span><span>spaCy&nbsp;NLP</span><span>SQLite</span><span>Streamlit</span><span>GitHub&nbsp;Actions&nbsp;CI</span>
+    </div>
+  </section>
+
+  <section>
+    <div class="metrics">
+      <div class="metric"><div class="num">10,168</div><div class="lbl">postings ingested from public APIs</div></div>
+      <div class="metric"><div class="num">5,650</div><div class="lbl">analyzed after data cleaning</div></div>
+      <div class="metric"><div class="num accent">74%</div><div class="lbl">extraction F1 (validated)</div></div>
+      <div class="metric"><div class="num">$0</div><div class="lbl">infrastructure cost</div></div>
+      <div class="metric"><div class="num">weekly</div><div class="lbl">automated data refresh</div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>How it works</h2>
+    <div class="pipe">
+      <div class="step"><div class="n">01</div><h3>Ingest</h3><p>Pulls live postings from 3 free job-board APIs &mdash; no scraping, no ToS risk.</p></div>
+      <div class="step"><div class="n">02</div><h3>Clean</h3><p>Language detection, near-duplicate removal, spam stripping &mdash; filters 44% of raw data.</p></div>
+      <div class="step"><div class="n">03</div><h3>Extract</h3><p>spaCy NLP tags skills against a 178-term taxonomy across 4 categories.</p></div>
+      <div class="step"><div class="n">04</div><h3>Rank</h3><p>Aggregates monthly counts into per-category demand rankings.</p></div>
+      <div class="step"><div class="n">05</div><h3>Publish</h3><p>A Streamlit dashboard serves the trends, redeployed automatically.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>What the data shows right now</h2>
+    <div class="rank-grid">
+      <div class="rank">
+        <h3>Languages</h3>
+        <ol>
+          <li><span class="nm">Python</span><span class="ct">227</span></li>
+          <li><span class="nm">TypeScript</span><span class="ct">129</span></li>
+          <li><span class="nm">SQL</span><span class="ct">91</span></li>
+          <li><span class="nm">Go</span><span class="ct">52</span></li>
+          <li><span class="nm">C++</span><span class="ct">48</span></li>
+        </ol>
+      </div>
+      <div class="rank">
+        <h3>Technologies</h3>
+        <ol>
+          <li><span class="nm">LLM / GenAI</span><span class="ct">139</span></li>
+          <li><span class="nm">CI/CD</span><span class="ct">106</span></li>
+          <li><span class="nm">AWS</span><span class="ct">104</span></li>
+          <li><span class="nm">Agile</span><span class="ct">103</span></li>
+          <li><span class="nm">React</span><span class="ct">96</span></li>
+        </ol>
+      </div>
+      <div class="rank">
+        <h3>Roles / Domains</h3>
+        <ol>
+          <li><span class="nm">Infrastructure</span><span class="ct">396</span></li>
+          <li><span class="nm">Backend Dev</span><span class="ct">182</span></li>
+          <li><span class="nm">Banking / Fintech</span><span class="ct">138</span></li>
+          <li><span class="nm">Full-Stack</span><span class="ct">113</span></li>
+          <li><span class="nm">Frontend Dev</span><span class="ct">93</span></li>
+        </ol>
+      </div>
+      <div class="rank">
+        <h3>Soft Skills</h3>
+        <ol>
+          <li><span class="nm">Leadership</span><span class="ct">460</span></li>
+          <li><span class="nm">Stakeholder Mgmt</span><span class="ct">367</span></li>
+          <li><span class="nm">Communication</span><span class="ct">358</span></li>
+          <li><span class="nm">Teamwork</span><span class="ct">313</span></li>
+          <li><span class="nm">Curiosity</span><span class="ct">202</span></li>
+        </ol>
+      </div>
+    </div>
+    <p class="caption">// live demand ranking, August 2026 &mdash; count = number of postings mentioning each</p>
+  </section>
+
+  <section>
+    <h2>Engineering decisions worth noting</h2>
+    <div class="cards">
+      <div class="card">
+        <h3><span class="dot"></span>Measured, not guessed</h3>
+        <p>Built a validation harness with a hand-labeled gold set and per-category precision / recall / F1. Error-analysis-driven iteration lifted overall F1 from <strong>67% &rarr; 74%</strong>, reaching <strong>100%</strong> on programming-language detection.</p>
+      </div>
+      <div class="card">
+        <h3><span class="dot"></span>Data quality first</h3>
+        <p>Discovered ~half the raw feed was noise &mdash; non-English text, re-posts, and spam. A cleaning pass removed <strong>44%</strong> of postings and fixed a ranking bug where "C-suite" was being counted as the C language.</p>
+      </div>
+      <div class="card">
+        <h3><span class="dot"></span>Runs itself, for free</h3>
+        <p>A <strong>GitHub Actions</strong> cron ingests, cleans, extracts, and commits fresh data weekly &mdash; no server, no paid API, no credit card. The dashboard redeploys on every push.</p>
+      </div>
+      <div class="card">
+        <h3><span class="dot"></span>Honest scope</h3>
+        <p>Extraction is currently rule-based NLP (spaCy). The measured <strong>74% baseline</strong> is the bar a trained NER model &mdash; the next milestone &mdash; has to beat, so improvement is provable, not assumed.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Built with</h2>
+    <div class="chips">
+      <span class="chip">Python</span>
+      <span class="chip">spaCy</span>
+      <span class="chip">pandas</span>
+      <span class="chip">SQLite</span>
+      <span class="chip">langdetect</span>
+      <span class="chip">Streamlit</span>
+      <span class="chip">Altair</span>
+      <span class="chip">GitHub Actions</span>
+      <span class="chip">httpx</span>
+      <span class="chip">Adzuna / Arbeitnow / Remotive APIs</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>For the r&eacute;sum&eacute;</h2>
+    <div class="bullets-box">
+      <div class="bullets-head">
+        <span class="t">// copy-ready bullet points</span>
+        <button id="copyBtn" type="button">Copy all</button>
+      </div>
+      <ul class="bullets" id="bullets">
+        <li><span><strong>Built an end-to-end job-market analytics platform</strong> (Python, spaCy, SQLite, Streamlit) ingesting 10K+ live postings from 3 public APIs, fully automated with GitHub Actions CI on a $0 infrastructure budget.</span></li>
+        <li><span><strong>Designed a data-cleaning pipeline</strong> &mdash; language detection, near-duplicate detection, and spam stripping &mdash; that filtered 44% of raw postings, plus an NLP extraction layer over a 178-term skill taxonomy across 4 categories.</span></li>
+        <li><span><strong>Established a validation harness</strong> with a hand-labeled gold set measuring precision / recall / F1 per category; drove extraction F1 from 67% to 74% (100% on programming-language detection) through error-analysis-driven iteration.</span></li>
+        <li><span><strong>Shipped a live dashboard</strong> surfacing monthly hiring trends across technologies, languages, roles, and soft skills, redeployed automatically on every data refresh.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <div class="next"><strong>Next milestone:</strong> replace the rule-based extractor with a trained spaCy NER model and benchmark it against the 74% validation baseline.</div>
+    <p style="margin-top:20px">
+      Live demo: <a href="https://jobpulse-fvopjbm2vnzoqjatwjxkun.streamlit.app" target="_blank" rel="noopener">jobpulse.streamlit.app</a>
+      &nbsp;&middot;&nbsp; Code: <a href="https://github.com/Chapstick53/jobpulse" target="_blank" rel="noopener">github.com/Chapstick53/jobpulse</a>
+    </p>
+  </footer>
+
+</div>
+
+<script>
+  (function () {
+    var btn = document.getElementById('copyBtn');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+      var items = document.querySelectorAll('#bullets li');
+      var text = Array.prototype.map.call(items, function (li) {
+        return '• ' + li.innerText.trim();
+      }).join('\n');
+      navigator.clipboard.writeText(text).then(function () {
+        var old = btn.textContent;
+        btn.textContent = 'Copied ✓';
+        setTimeout(function () { btn.textContent = old; }, 1600);
+      }).catch(function () {
+        btn.textContent = 'Select & copy manually';
+      });
+    });
+  })();
+</script>
+</body>
+</html>
